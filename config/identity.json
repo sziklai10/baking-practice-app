@@ -1,0 +1,8 @@
+{
+  "_note": "The one place to rename the app. 'Proof' is a working name and unlikely to be the final store name (see the PRD decision log). Bundle and package IDs are deliberately neutral and unrelated to it.",
+  "displayName": "Proof",
+  "slug": "baking-practice-app",
+  "scheme": "bakingpractice",
+  "iosBundleIdentifier": "com.bakingpractice.mvp",
+  "androidPackage": "com.bakingpractice.mvp"
+}

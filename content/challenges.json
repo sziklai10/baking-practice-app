@@ -1,0 +1,138 @@
+{
+  "_note": "Placeholder practice challenges. General practice advice only, not official rules or judging criteria. Replace freely; the app validates this file on load.",
+  "challenges": [
+    {
+      "id": "even-shortbread",
+      "title": "Twelve identical shortbread fingers",
+      "summary": "A short, low-stakes bake about consistency rather than flair.",
+      "level": "beginner",
+      "durationMinutes": 60,
+      "skills": ["consistency", "timing", "biscuits"],
+      "equipment": ["oven", "baking-sheet", "scales"],
+      "goal": "Twelve fingers the same size and thickness, evenly pale gold, all from one batch.",
+      "prepNotes": [
+        "Weigh everything before you start the clock.",
+        "Decide how you'll make them the same size: a ruler, a template, or rolling guides.",
+        "Chilled dough holds its shape better, so plan a short rest in the fridge."
+      ],
+      "safetyNotes": [
+        "Trays come out hot. Have a clear spot ready before you open the oven."
+      ],
+      "reflectionHints": [
+        "How close were the sizes, honestly?",
+        "Was the colour even across the tray?"
+      ]
+    },
+    {
+      "id": "cupcakes-six-matching",
+      "title": "Six matching decorated cupcakes",
+      "summary": "Bake, cool and finish six cupcakes that look like a set.",
+      "level": "beginner",
+      "durationMinutes": 90,
+      "skills": ["decoration", "presentation", "timing", "sponge"],
+      "equipment": ["oven", "muffin-tray", "piping-bag", "scales"],
+      "goal": "Six cupcakes with level tops and the same piped finish, presented together.",
+      "prepNotes": [
+        "Cooling takes longer than you think. Work out when they must leave the oven.",
+        "Practise one swirl on a plate before the first cupcake.",
+        "Pick the plate or board you'll present on before you begin."
+      ],
+      "safetyNotes": [
+        "Let cakes cool fully before decorating, and keep anything with fresh cream cold."
+      ],
+      "reflectionHints": [
+        "Did they look like a set from arm's length?",
+        "Where did the time actually go?"
+      ]
+    },
+    {
+      "id": "swiss-roll-no-cracks",
+      "title": "A Swiss roll without cracks",
+      "summary": "A whisked sponge, a filling and a clean roll.",
+      "level": "intermediate",
+      "durationMinutes": 75,
+      "skills": ["sponge", "technique", "finishing"],
+      "equipment": ["oven", "swiss-roll-tin", "electric-whisk", "scales"],
+      "goal": "An even spiral, no cracks on the outside, cleanly trimmed ends.",
+      "prepNotes": [
+        "Line the tin before you whisk anything.",
+        "Have your rolling paper and filling ready for the moment the sponge comes out.",
+        "Decide whether you'll roll warm or cool, and stick with it."
+      ],
+      "safetyNotes": [
+        "Rolling a hot sponge means handling something straight from the oven. Use a clean tea towel or paper, not bare hands."
+      ],
+      "reflectionHints": [
+        "Was the sponge too thick, too dry, or just right?",
+        "Did the filling spread evenly to the edges?"
+      ]
+    },
+    {
+      "id": "fruit-tart-two-hours",
+      "title": "A fruit tart in two hours",
+      "summary": "Shortcrust, blind baking, crème pâtissière and a neat finish.",
+      "level": "intermediate",
+      "durationMinutes": 120,
+      "skills": ["pastry", "timing", "finishing", "presentation"],
+      "equipment": ["oven", "tart-tin", "baking-beans", "scales"],
+      "goal": "A crisp, evenly baked case, a set filling and fruit arranged with intent.",
+      "prepNotes": [
+        "Write down the order: pastry, chill, blind bake, crème pât, cool, assemble.",
+        "Crème pât needs time to cool. Make it while the pastry chills.",
+        "Plan the fruit pattern on paper before you cut anything."
+      ],
+      "safetyNotes": [
+        "Hot baking beans hold heat for a long time. Tip them somewhere safe to cool.",
+        "Custard fillings should be cooled quickly and kept in the fridge."
+      ],
+      "reflectionHints": [
+        "Was the base crisp all the way to the centre?",
+        "Which step ran over, and why?"
+      ]
+    },
+    {
+      "id": "choux-against-the-clock",
+      "title": "Éclairs against the clock",
+      "summary": "Choux pastry, piping and a glossy finish under time pressure.",
+      "level": "confident",
+      "durationMinutes": 120,
+      "skills": ["pastry", "technique", "decoration", "timing"],
+      "equipment": ["oven", "baking-sheet", "piping-bag", "scales"],
+      "goal": "Twelve éclairs of matching length, crisp and hollow, filled and glazed.",
+      "prepNotes": [
+        "Mark piping guides on your paper before you start.",
+        "Choux needs to dry out properly. Build that into your timings.",
+        "Have the filling chilling while the shells bake."
+      ],
+      "safetyNotes": [
+        "The panade is very hot when you beat in the eggs. Let it cool slightly first."
+      ],
+      "reflectionHints": [
+        "Did any collapse? When in the bake did it happen?",
+        "How consistent was the piping from first to last?"
+      ]
+    },
+    {
+      "id": "plaited-loaf-three-hours",
+      "title": "A plaited loaf in three hours",
+      "summary": "An enriched dough, two proves and a plait that holds its shape.",
+      "level": "confident",
+      "durationMinutes": 180,
+      "skills": ["bread", "timing", "presentation"],
+      "equipment": ["oven", "baking-sheet", "scales"],
+      "goal": "An even, well-risen plait with a deep, glossy crust and a fully baked middle.",
+      "prepNotes": [
+        "Proving is the bit you can't rush. Work backwards from when it must go in the oven.",
+        "Practise the plait with string or tea towels first if it's new to you.",
+        "Find the warmest draught-free spot in your kitchen before you start."
+      ],
+      "safetyNotes": [
+        "Check the bake by tapping the base or with a thermometer, using oven gloves."
+      ],
+      "reflectionHints": [
+        "Was it under- or over-proved? What told you?",
+        "Did the plait stay even along its length?"
+      ]
+    }
+  ]
+}

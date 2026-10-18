@@ -1,0 +1,14 @@
+{
+  "_note": "Equipment labels used by challenges.json. Add an entry here before using a new id there.",
+  "equipment": {
+    "oven": "Oven",
+    "scales": "Kitchen scales",
+    "baking-sheet": "Baking sheet",
+    "muffin-tray": "Muffin tray",
+    "piping-bag": "Piping bag",
+    "swiss-roll-tin": "Swiss roll tin",
+    "electric-whisk": "Electric whisk or stand mixer",
+    "tart-tin": "Loose-bottomed tart tin",
+    "baking-beans": "Baking beans (or dried pulses)"
+  }
+}
