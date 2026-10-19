@@ -7,7 +7,7 @@ import { ASSUMED_EQUIPMENT } from '../domain/plan';
 import { useAppData } from '../state/AppData';
 import { Button, Checklist, Choices, Screen, T } from '../ui/components';
 import type { Choice } from '../ui/components';
-import { space } from '../ui/theme';
+import { space, useColors } from '../ui/theme';
 
 const EXPERIENCE: Choice<Level>[] = [
   { value: 'beginner', label: 'Fairly new to it' },
@@ -88,9 +88,8 @@ export default function OnboardingScreen() {
 
   return (
     <Screen>
-      <T muted>
-        Step {step + 1} of {STEPS}
-      </T>
+      <StepBar step={step} />
+      <T variant="eyebrow">Whisk Assessment</T>
       {question.body}
       <T muted>Why we ask: {question.why}</T>
       <View style={{ gap: space.sm }}>
@@ -103,5 +102,32 @@ export default function OnboardingScreen() {
         {saved?.status !== 'set' ? <Button label="Skip for now" variant="secondary" onPress={skip} /> : null}
       </View>
     </Screen>
+  );
+}
+
+/** Filled bars for answered steps and a written step count, so progress doesn't rely on colour. */
+function StepBar({ step }: { step: number }) {
+  const c = useColors();
+  return (
+    <View style={{ gap: space.sm }}>
+      <View style={{ flexDirection: 'row', gap: 6 }} aria-hidden>
+        {Array.from({ length: STEPS }, (_, i) => (
+          <View
+            key={i}
+            style={{
+              flex: 1,
+              height: 8,
+              borderRadius: 4,
+              borderWidth: 2,
+              borderColor: c.border,
+              backgroundColor: i < step ? c.border : i === step ? c.highlight : 'transparent',
+            }}
+          />
+        ))}
+      </View>
+      <T bold>
+        Step {step + 1} of {STEPS}
+      </T>
+    </View>
   );
 }

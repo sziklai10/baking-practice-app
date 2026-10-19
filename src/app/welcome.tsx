@@ -2,17 +2,18 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import identity from '../../config/identity.json';
 import { useAppData } from '../state/AppData';
-import { Bullets, Button, Screen, T } from '../ui/components';
+import { Bullets, Button, Card, Screen, T } from '../ui/components';
 import { space } from '../ui/theme';
 
 export default function WelcomeScreen() {
   const { skipProfile } = useAppData();
   return (
     <Screen>
-      <View style={{ gap: space.sm }}>
+      <Card hero>
         <T variant="title">Welcome to {identity.displayName}</T>
+        <T variant="heading">Practise the pressure, not just the recipe.</T>
         <T>Practice for baking competitions, at home and against the clock.</T>
-      </View>
+      </Card>
       <Bullets
         items={[
           'Timed practice bakes with a short reflection afterwards.',

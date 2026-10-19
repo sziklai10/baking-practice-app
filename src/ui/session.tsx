@@ -8,7 +8,7 @@ import type { TimerStatus } from '../domain/timer';
 import { crossedMilestone } from '../domain/timer';
 import { useAppData } from '../state/AppData';
 import { T } from './components';
-import { space, useColors } from './theme';
+import { fonts, space, useColors } from './theme';
 
 export const STATUS_LABELS: Record<TimerStatus, string> = {
   idle: 'Not started',
@@ -109,5 +109,5 @@ export const sessionStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   timerBox: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: space.sm, minHeight: 120 },
-  timer: { fontSize: 96, fontWeight: '800', letterSpacing: -2, fontVariant: ['tabular-nums'], textAlign: 'center', alignSelf: 'stretch' },
+  timer: { fontFamily: fonts.bold, fontSize: 96, letterSpacing: -2, fontVariant: ['tabular-nums'], textAlign: 'center', alignSelf: 'stretch' },
 });

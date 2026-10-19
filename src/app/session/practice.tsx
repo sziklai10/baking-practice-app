@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 import { useKeepAwake } from 'expo-keep-awake';
+import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { findChallenge } from '../../content/challenges';
@@ -7,10 +8,19 @@ import { remainingMs, timerStatus } from '../../domain/timer';
 import { useAppData } from '../../state/AppData';
 import { Button, Notice, T } from '../../ui/components';
 import { STATUS_LABELS, TimerFace, sessionStyles, useSessionExit, useTimerCues } from '../../ui/session';
-import { space, useColors } from '../../ui/theme';
+import { ColorsOverride, sessionColors, space, useColors } from '../../ui/theme';
 import { useNow } from '../../ui/useNow';
 
 export default function PracticeSessionScreen() {
+  return (
+    <ColorsOverride value={sessionColors}>
+      <StatusBar style="light" />
+      <PracticeSession />
+    </ColorsOverride>
+  );
+}
+
+function PracticeSession() {
   useKeepAwake();
   const c = useColors();
   const { active, pause, resume, addTime } = useAppData();

@@ -2,17 +2,8 @@ import type { ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { StyleProp, TextProps, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { KITCHEN_TAP_SIZE, radius, space, type, useColors } from './theme';
+import { ColorsOverride, KITCHEN_TAP_SIZE, fonts, radius, space, type, useColors } from './theme';
 import type { Colors } from './theme';
-
-/** A soft drop shadow instead of hard borders. Borders stay for dark mode, where shadows barely show. */
-const lift = (c: Colors) => ({
-  shadowColor: c.shadow,
-  shadowOpacity: 0.08,
-  shadowRadius: 16,
-  shadowOffset: { width: 0, height: 6 },
-  elevation: 3,
-});
 
 export function Screen({ children, scroll = true }: { children: ReactNode; scroll?: boolean }) {
   const c = useColors();
@@ -28,15 +19,22 @@ export function Screen({ children, scroll = true }: { children: ReactNode; scrol
   );
 }
 
-type Variant = 'title' | 'heading' | 'body' | 'small';
+type Variant = 'title' | 'heading' | 'body' | 'small' | 'eyebrow';
 
-export function T({ variant = 'body', muted, style, ...rest }: TextProps & { variant?: Variant; muted?: boolean }) {
+export function T({
+  variant = 'body',
+  muted,
+  bold,
+  style,
+  ...rest
+}: TextProps & { variant?: Variant; muted?: boolean; bold?: boolean }) {
   const c = useColors();
+  const color = variant === 'eyebrow' ? c.eyebrow : muted ? c.textMuted : c.text;
   return (
     <Text
       {...rest}
       accessibilityRole={variant === 'title' || variant === 'heading' ? 'header' : rest.accessibilityRole}
-      style={[type[variant], { color: muted ? c.textMuted : c.text }, style]}
+      style={[type[variant], { color }, bold ? { fontFamily: fonts.bold } : null, style]}
     />
   );
 }
@@ -55,7 +53,7 @@ export function Button({ label, onPress, variant = 'primary', hint, disabled, st
   const c = useColors();
   const palette = {
     primary: { bg: c.accent, fg: c.onAccent, border: c.accent },
-    secondary: { bg: c.surface, fg: c.accent, border: c.accent },
+    secondary: { bg: 'transparent', fg: c.text, border: c.border },
     danger: { bg: c.danger, fg: c.onDanger, border: c.danger },
   }[variant];
   return (
@@ -78,11 +76,38 @@ export function Button({ label, onPress, variant = 'primary', hint, disabled, st
   );
 }
 
-export function Card({ children, onPress, label }: { children: ReactNode; onPress?: () => void; label?: string }) {
+const heroColors = (c: Colors): Colors => ({
+  ...c,
+  background: c.hero,
+  surface: c.hero,
+  text: c.onHero,
+  textMuted: c.onHero,
+  eyebrow: c.heroEyebrow,
+  border: c.onHero,
+  accent: c.heroEyebrow,
+  onAccent: c.hero,
+});
+
+/**
+ * A rounded panel. `hero` is the dark Cocoa card for the one thing to do next;
+ * everything inside it switches to light-on-dark colours.
+ */
+export function Card({
+  children,
+  onPress,
+  label,
+  hero,
+}: {
+  children: ReactNode;
+  onPress?: () => void;
+  label?: string;
+  hero?: boolean;
+}) {
   const c = useColors();
-  const style = [styles.card, lift(c), { backgroundColor: c.surface, borderColor: c.border }];
-  if (!onPress) return <View style={style}>{children}</View>;
-  return (
+  const style = [styles.card, { backgroundColor: hero ? c.hero : c.surface }];
+  const body = !onPress ? (
+    <View style={style}>{children}</View>
+  ) : (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
@@ -92,13 +117,14 @@ export function Card({ children, onPress, label }: { children: ReactNode; onPres
       {children}
     </Pressable>
   );
+  return hero ? <ColorsOverride value={heroColors(c)}>{body}</ColorsOverride> : body;
 }
 
 /** A labelled block such as "General advice", so readers always know what kind of content they're looking at. */
 export function Section({ title, tag, children }: { title: string; tag?: string; children: ReactNode }) {
   return (
     <View style={{ gap: space.sm }}>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', gap: space.sm }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.sm }}>
         <T variant="heading">{title}</T>
         {tag ? <Tag label={tag} /> : null}
       </View>
@@ -110,8 +136,8 @@ export function Section({ title, tag, children }: { title: string; tag?: string;
 export function Tag({ label }: { label: string }) {
   const c = useColors();
   return (
-    <View style={[styles.tag, { backgroundColor: c.accentSoft }]}>
-      <Text style={[type.small, { color: c.text, fontWeight: '600' }]}>{label}</Text>
+    <View style={[styles.tag, { borderColor: c.border }]}>
+      <Text style={[type.small, { color: c.text, fontFamily: fonts.bold }]}>{label}</Text>
     </View>
   );
 }
@@ -140,7 +166,54 @@ export function Notice({ children }: { children: ReactNode }) {
 
 export type Choice<V extends string> = { value: V; label: string; detail?: string };
 
-/** A list of large radio options. The choice is shown by a tick and bold text, not colour alone. */
+/** One big tappable option. Chosen ones get a Crust fill, a thicker outline, bold text and a written tick. */
+function Option({
+  role,
+  label,
+  detail,
+  chosen,
+  onPress,
+}: {
+  role: 'radio' | 'checkbox';
+  label: string;
+  detail?: string;
+  chosen: boolean;
+  onPress: () => void;
+}) {
+  const c = useColors();
+  const fg = chosen ? c.onHighlight : c.text;
+  return (
+    <Pressable
+      accessibilityRole={role}
+      accessibilityState={{ checked: chosen }}
+      accessibilityLabel={detail ? `${label}. ${detail}` : label}
+      onPress={onPress}
+      style={[
+        styles.option,
+        {
+          borderColor: c.border,
+          backgroundColor: chosen ? c.highlight : c.surface,
+          borderWidth: chosen ? 4 : 2,
+          paddingHorizontal: chosen ? space.md - 2 : space.md,
+        },
+      ]}
+    >
+      <View style={{ flex: 1, paddingVertical: space.sm }}>
+        <Text style={[type.body, { color: fg, fontFamily: chosen ? fonts.bold : fonts.body }]}>{label}</Text>
+        {detail ? <Text style={[type.small, { color: fg }]}>{detail}</Text> : null}
+      </View>
+      {chosen ? (
+        <Text style={[type.small, { color: fg, fontFamily: fonts.bold }]}>✓ Selected</Text>
+      ) : (
+        <View
+          style={[styles.mark, { borderColor: c.border, borderRadius: role === 'radio' ? radius.pill : 6 }]}
+        />
+      )}
+    </Pressable>
+  );
+}
+
+/** A list of large radio options. */
 export function Choices<V extends string>({
   label,
   options,
@@ -155,37 +228,27 @@ export function Choices<V extends string>({
   /** Tapping the selected option again clears it. */
   allowNone?: boolean;
 }) {
-  const c = useColors();
   return (
     <View style={{ gap: space.sm }} accessibilityRole="radiogroup" accessibilityLabel={label}>
       <T variant="heading">{label}</T>
       {options.map((o) => {
         const selected = value === o.value;
         return (
-          <Pressable
+          <Option
             key={o.value}
-            accessibilityRole="radio"
-            accessibilityState={{ checked: selected }}
-            accessibilityLabel={o.detail ? `${o.label}. ${o.detail}` : o.label}
+            role="radio"
+            label={o.label}
+            detail={o.detail}
+            chosen={selected}
             onPress={() => onChange(selected && allowNone ? null : o.value)}
-            style={[
-              styles.option,
-              { borderColor: selected ? c.accent : c.border, backgroundColor: selected ? c.accentSoft : c.surface, borderWidth: selected ? 3 : 1 },
-            ]}
-          >
-            <Text style={[type.body, { color: c.text, width: 28 }]}>{selected ? '✓' : ''}</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={[type.body, { color: c.text, fontWeight: selected ? '700' : '400' }]}>{o.label}</Text>
-              {o.detail ? <Text style={[type.small, { color: c.textMuted }]}>{o.detail}</Text> : null}
-            </View>
-          </Pressable>
+          />
         );
       })}
     </View>
   );
 }
 
-/** Large tick boxes for choosing any number of options. Ticked ones show a tick and bold text, not colour alone. */
+/** Large tick boxes for choosing any number of options. */
 export function Checklist<V extends string>({
   label,
   options,
@@ -197,30 +260,20 @@ export function Checklist<V extends string>({
   values: V[];
   onChange: (v: V[]) => void;
 }) {
-  const c = useColors();
   return (
     <View style={{ gap: space.sm }} accessibilityLabel={label}>
       <T variant="heading">{label}</T>
       {options.map((o) => {
         const checked = values.includes(o.value);
         return (
-          <Pressable
+          <Option
             key={o.value}
-            accessibilityRole="checkbox"
-            accessibilityState={{ checked }}
-            accessibilityLabel={o.detail ? `${o.label}. ${o.detail}` : o.label}
+            role="checkbox"
+            label={o.label}
+            detail={o.detail}
+            chosen={checked}
             onPress={() => onChange(checked ? values.filter((v) => v !== o.value) : [...values, o.value])}
-            style={[
-              styles.option,
-              { borderColor: checked ? c.accent : c.border, backgroundColor: checked ? c.accentSoft : c.surface, borderWidth: checked ? 3 : 1 },
-            ]}
-          >
-            <Text style={[type.body, { color: c.text, width: 28 }]}>{checked ? '✓' : ''}</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={[type.body, { color: c.text, fontWeight: checked ? '700' : '400' }]}>{o.label}</Text>
-              {o.detail ? <Text style={[type.small, { color: c.textMuted }]}>{o.detail}</Text> : null}
-            </View>
-          </Pressable>
+          />
         );
       })}
     </View>
@@ -247,16 +300,18 @@ export function Toggle({
       accessibilityLabel={label}
       accessibilityHint={detail}
       onPress={() => onChange(!value)}
-      style={[styles.option, { borderColor: c.border, backgroundColor: c.surface, borderWidth: 1, gap: space.md }]}
+      style={[styles.option, { borderColor: c.border, backgroundColor: c.surface, borderWidth: 2, gap: space.md }]}
     >
       <View style={{ flex: 1, paddingVertical: space.sm }}>
-        <Text style={[type.body, { color: c.text, fontWeight: '700' }]}>{label}</Text>
+        <Text style={[type.body, { color: c.text, fontFamily: fonts.bold }]}>{label}</Text>
         {detail ? <Text style={[type.small, { color: c.textMuted }]}>{detail}</Text> : null}
       </View>
       <View
-        style={[styles.toggleState, { backgroundColor: value ? c.accent : c.background, borderColor: value ? c.accent : c.text }]}
+        style={[styles.toggleState, { backgroundColor: value ? c.accent : 'transparent', borderColor: c.border }]}
       >
-        <Text style={[type.small, { color: value ? c.onAccent : c.text, fontWeight: '700' }]}>{value ? 'On' : 'Off'}</Text>
+        <Text style={[type.small, { color: value ? c.onAccent : c.text, fontFamily: fonts.bold }]}>
+          {value ? 'On' : 'Off'}
+        </Text>
       </View>
     </Pressable>
   );
@@ -269,9 +324,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.md,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: space.sm,
   },
-  toggleState: { borderWidth: 2, borderRadius: radius.pill, paddingHorizontal: space.md, paddingVertical: space.xs, minWidth: 64, alignItems: 'center' },
-  screenContent: { paddingHorizontal: space.lg - 4, paddingTop: space.md, gap: space.lg, paddingBottom: space.xl * 2 },
+  mark: { width: 26, height: 26, borderWidth: 2 },
+  toggleState: {
+    borderWidth: 2,
+    borderRadius: radius.pill,
+    paddingHorizontal: space.md,
+    paddingVertical: space.xs,
+    minWidth: 64,
+    alignItems: 'center',
+  },
+  screenContent: { paddingHorizontal: space.md + 4, paddingTop: space.md, gap: space.lg, paddingBottom: space.xl * 2 },
   button: {
     minHeight: KITCHEN_TAP_SIZE,
     paddingHorizontal: space.lg,
@@ -281,7 +345,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  card: { borderWidth: StyleSheet.hairlineWidth, borderRadius: radius.lg, padding: space.lg - 4, gap: space.sm },
-  tag: { borderRadius: radius.pill, paddingHorizontal: space.sm + 2, paddingVertical: 2 },
-  notice: { borderRadius: radius.md, padding: space.md },
+  card: { borderRadius: radius.lg, padding: space.lg - 4, gap: space.sm + 4 },
+  tag: { borderWidth: 2, borderRadius: radius.pill, paddingHorizontal: space.sm + 4, paddingVertical: 4 },
+  notice: { borderRadius: radius.sm, padding: space.md },
 });

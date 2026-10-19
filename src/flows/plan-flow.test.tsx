@@ -28,7 +28,7 @@ beforeEach(async () => {
 it('welcomes a new baker and can be skipped', async () => {
   await renderRouter('./src/app', { initialUrl: '/' });
   await wait();
-  expect(screen.getByText('Welcome to Proof')).toBeOnTheScreen();
+  expect(screen.getByText('Welcome to Steady On')).toBeOnTheScreen();
 
   await press('Skip for now');
   expect(screen.getByText('Not sure where to start?')).toBeOnTheScreen();

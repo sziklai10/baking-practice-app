@@ -1,21 +1,14 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import type { ColorValue } from 'react-native';
-import { type, useColors } from '../../ui/theme';
+import { fonts, type, useColors } from '../../ui/theme';
 
 function TabLabel({ focused, color, children }: { focused: boolean; color: ColorValue; children: string }) {
-  // The selected tab is bold and underlined as well as coloured, so it never relies on colour alone.
+  // The selected tab gets a bar above it and bold text, so it never relies on colour alone.
   return (
-    <Text
-      style={{
-        fontSize: type.small.fontSize,
-        color,
-        fontWeight: focused ? '700' : '400',
-        textDecorationLine: focused ? 'underline' : 'none',
-      }}
-    >
-      {children}
-    </Text>
+    <View style={{ alignSelf: 'stretch', alignItems: 'center', borderTopWidth: 4, borderTopColor: focused ? color : 'transparent', paddingTop: 10 }}>
+      <Text style={[type.small, { color, fontFamily: focused ? fonts.bold : fonts.body }]}>{children}</Text>
+    </View>
   );
 }
 
@@ -25,9 +18,9 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: c.accent,
+        tabBarActiveTintColor: c.text,
         tabBarInactiveTintColor: c.textMuted,
-        tabBarStyle: { backgroundColor: c.surface, borderTopColor: c.border, minHeight: 72, paddingTop: 6 },
+        tabBarStyle: { backgroundColor: c.surface, borderTopColor: c.border, borderTopWidth: 2, minHeight: 72 },
         // Text-only tabs until there's a visual identity to draw icons from.
         tabBarIcon: () => null,
         tabBarIconStyle: { display: 'none' },

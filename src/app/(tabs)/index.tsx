@@ -66,10 +66,10 @@ export default function PractiseScreen() {
           label={`${c.title}. ${LEVEL_LABELS[c.level]}, ${durationLabel(c.durationMinutes)}.`}
           onPress={() => router.push({ pathname: '/challenge/[id]', params: { id: c.id } })}
         >
-          <T variant="heading">{c.title}</T>
-          <T muted>
+          <T variant="eyebrow">
             {LEVEL_LABELS[c.level]} · {durationLabel(c.durationMinutes)}
           </T>
+          <T variant="heading">{c.title}</T>
           <T>{c.summary}</T>
         </Card>
       ))}
@@ -127,7 +127,8 @@ function PlanCard({ profile }: { profile: Profile }) {
   const others = suggestions.filter((s) => s.challengeId !== top.challengeId).slice(0, 2);
   return (
     <Section title="Your next practice" tag="General advice">
-      <Card>
+      <Card hero>
+        <T variant="eyebrow">Next up · {durationLabel(findChallenge(top.challengeId)?.durationMinutes ?? 0)}</T>
         <T variant="heading">{suggestionTitle(top)}</T>
         <T>{top.reason}</T>
         {top.missing.length ? (

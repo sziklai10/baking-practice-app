@@ -1,4 +1,4 @@
-# Baking practice app (working name: Proof)
+# Baking practice app (working name: Steady On)
 
 A mobile-first practice app for home bakers preparing for baking competitions.
 MVP scope and decisions: see `CLAUDE.md`.

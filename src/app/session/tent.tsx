@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 import { useKeepAwake } from 'expo-keep-awake';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { AccessibilityInfo, StyleSheet, View, Vibration } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,10 +11,19 @@ import { remainingMs, timerStatus } from '../../domain/timer';
 import { useAppData } from '../../state/AppData';
 import { Button, Notice, T } from '../../ui/components';
 import { STATUS_LABELS, TimerFace, sessionStyles, useSessionExit, useTimerCues } from '../../ui/session';
-import { radius, space, useColors } from '../../ui/theme';
+import { ColorsOverride, promptColors, radius, sessionColors, space, useColors } from '../../ui/theme';
 import { useNow } from '../../ui/useNow';
 
 export default function TentScreen() {
+  return (
+    <ColorsOverride value={sessionColors}>
+      <StatusBar style="light" />
+      <TentSession />
+    </ColorsOverride>
+  );
+}
+
+function TentSession() {
   useKeepAwake();
   const c = useColors();
   const { active, pause, resume, syncTent, closePrompt, setPromptsMuted } = useAppData();
@@ -69,20 +79,19 @@ export default function TentScreen() {
         {finished ? (
           <Notice>Time's up. Stop when it's safe to, then come back and see how it went.</Notice>
         ) : current ? (
-          <View
-            accessibilityLiveRegion="polite"
-            style={[styles.prompt, { backgroundColor: c.surface, borderColor: c.accent }]}
-          >
-            <T variant="small" muted>
-              Question · fades in {fadesIn}s{current.autoPaused ? ' · clock paused' : ''}
-            </T>
-            <T variant="heading">{promptText(current.promptId)}</T>
-            <T muted>Answer out loud if you can. Hands full? Ignore it.</T>
-            <View style={sessionStyles.row}>
-              <Button label="Done" variant="secondary" onPress={() => closePrompt('answered')} style={sessionStyles.fill} />
-              <Button label="Skip" variant="secondary" onPress={() => closePrompt('skipped')} style={sessionStyles.fill} />
+          <ColorsOverride value={promptColors}>
+            <View accessibilityLiveRegion="polite" style={[styles.prompt, { backgroundColor: promptColors.background }]}>
+              <T variant="eyebrow">
+                Question · fades in {fadesIn}s{current.autoPaused ? ' · clock paused' : ''}
+              </T>
+              <T variant="heading">{promptText(current.promptId)}</T>
+              <T>Answer out loud if you can. Hands full? Ignore it.</T>
+              <View style={sessionStyles.row}>
+                <Button label="Done" onPress={() => closePrompt('answered')} style={sessionStyles.fill} />
+                <Button label="Skip" variant="secondary" onPress={() => closePrompt('skipped')} style={sessionStyles.fill} />
+              </View>
             </View>
-          </View>
+          </ColorsOverride>
         ) : null}
 
         <View style={{ gap: space.sm }}>
@@ -116,5 +125,5 @@ export default function TentScreen() {
 }
 
 const styles = StyleSheet.create({
-  prompt: { borderWidth: 3, borderRadius: radius.lg, padding: space.md, gap: space.sm },
+  prompt: { borderRadius: radius.lg, padding: space.md + 2, gap: space.sm + 2 },
 });
