@@ -2,12 +2,16 @@
 // KEY_PREFIX. Each value is wrapped with a schema version so later builds
 // can migrate old data instead of losing it.
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { Profile } from '../domain/plan';
 import type { ActiveSession, SessionRecord } from '../domain/session';
+import type { PromptFrequency } from '../domain/tent';
 
 export const KEY_PREFIX = 'app.';
 export const KEYS = {
   sessions: `${KEY_PREFIX}sessions`,
   activeSession: `${KEY_PREFIX}activeSession`,
+  tentSettings: `${KEY_PREFIX}tentSettings`,
+  profile: `${KEY_PREFIX}profile`,
 } as const;
 
 export const SCHEMA_VERSION = 1;
@@ -55,12 +59,13 @@ async function write(key: string, data: unknown): Promise<void> {
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
+const isIdOrNull = (v: unknown) => typeof v === 'string' || v === null;
 
 function isSessionRecord(v: unknown): v is SessionRecord {
   return (
     isObject(v) &&
     typeof v.id === 'string' &&
-    typeof v.challengeId === 'string' &&
+    isIdOrNull(v.challengeId) &&
     typeof v.title === 'string' &&
     typeof v.startedAt === 'number' &&
     typeof v.endedAt === 'number'
@@ -76,7 +81,7 @@ function isActiveSession(v: unknown): v is ActiveSession | null {
   return (
     isObject(v) &&
     typeof v.id === 'string' &&
-    typeof v.challengeId === 'string' &&
+    isIdOrNull(v.challengeId) &&
     isObject(v.timer) &&
     typeof v.timer.durationMs === 'number' &&
     typeof v.timer.pausedTotalMs === 'number'
@@ -98,3 +103,57 @@ export async function deleteAllStoredData(): Promise<void> {
   const ours = keys.filter((k) => k.startsWith(KEY_PREFIX));
   if (ours.length) await AsyncStorage.multiRemove(ours);
 }
+
+/** The Tent Simulation setup the baker used last, offered as the starting point next time. */
+export type TentSettings = {
+  durationMinutes: number;
+  frequency: PromptFrequency;
+  pauseOnPrompt: boolean;
+  vibrate: boolean;
+};
+
+export const DEFAULT_TENT_SETTINGS: TentSettings = {
+  durationMinutes: 90,
+  frequency: 'low',
+  pauseOnPrompt: false,
+  vibrate: true,
+};
+
+function isTentSettings(v: unknown): v is TentSettings {
+  return (
+    isObject(v) &&
+    typeof v.durationMinutes === 'number' &&
+    ['off', 'low', 'medium'].includes(v.frequency as string) &&
+    typeof v.pauseOnPrompt === 'boolean' &&
+    typeof v.vibrate === 'boolean'
+  );
+}
+
+export const loadTentSettings = () => read(KEYS.tentSettings, DEFAULT_TENT_SETTINGS, isTentSettings);
+export const saveTentSettings = (settings: TentSettings) => write(KEYS.tentSettings, settings);
+
+/** Onboarding answers, or a note that the baker chose to skip them. Null means never asked. */
+export type ProfileState = { status: 'skipped' } | { status: 'set'; profile: Profile; updatedAt: number };
+
+const isStringList = (v: unknown): v is string[] => Array.isArray(v) && v.every((s) => typeof s === 'string');
+
+function isProfile(v: unknown): v is Profile {
+  return (
+    isObject(v) &&
+    ['beginner', 'intermediate', 'confident'].includes(v.experience as string) &&
+    ['tv', 'local', 'improve'].includes(v.goal as string) &&
+    typeof v.sessionMinutes === 'number' &&
+    isStringList(v.equipment) &&
+    isStringList(v.focus)
+  );
+}
+
+function isProfileState(v: unknown): v is ProfileState | null {
+  if (v === null) return true;
+  if (!isObject(v)) return false;
+  if (v.status === 'skipped') return true;
+  return v.status === 'set' && typeof v.updatedAt === 'number' && isProfile(v.profile);
+}
+
+export const loadProfile = () => read(KEYS.profile, null, isProfileState);
+export const saveProfile = (state: ProfileState) => write(KEYS.profile, state);
