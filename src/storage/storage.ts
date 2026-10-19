@@ -3,11 +3,13 @@
 // can migrate old data instead of losing it.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { ActiveSession, SessionRecord } from '../domain/session';
+import type { PromptFrequency } from '../domain/tent';
 
 export const KEY_PREFIX = 'app.';
 export const KEYS = {
   sessions: `${KEY_PREFIX}sessions`,
   activeSession: `${KEY_PREFIX}activeSession`,
+  tentSettings: `${KEY_PREFIX}tentSettings`,
 } as const;
 
 export const SCHEMA_VERSION = 1;
@@ -55,12 +57,13 @@ async function write(key: string, data: unknown): Promise<void> {
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
+const isIdOrNull = (v: unknown) => typeof v === 'string' || v === null;
 
 function isSessionRecord(v: unknown): v is SessionRecord {
   return (
     isObject(v) &&
     typeof v.id === 'string' &&
-    typeof v.challengeId === 'string' &&
+    isIdOrNull(v.challengeId) &&
     typeof v.title === 'string' &&
     typeof v.startedAt === 'number' &&
     typeof v.endedAt === 'number'
@@ -76,7 +79,7 @@ function isActiveSession(v: unknown): v is ActiveSession | null {
   return (
     isObject(v) &&
     typeof v.id === 'string' &&
-    typeof v.challengeId === 'string' &&
+    isIdOrNull(v.challengeId) &&
     isObject(v.timer) &&
     typeof v.timer.durationMs === 'number' &&
     typeof v.timer.pausedTotalMs === 'number'
@@ -98,3 +101,31 @@ export async function deleteAllStoredData(): Promise<void> {
   const ours = keys.filter((k) => k.startsWith(KEY_PREFIX));
   if (ours.length) await AsyncStorage.multiRemove(ours);
 }
+
+/** The Tent Simulation setup the baker used last, offered as the starting point next time. */
+export type TentSettings = {
+  durationMinutes: number;
+  frequency: PromptFrequency;
+  pauseOnPrompt: boolean;
+  vibrate: boolean;
+};
+
+export const DEFAULT_TENT_SETTINGS: TentSettings = {
+  durationMinutes: 90,
+  frequency: 'low',
+  pauseOnPrompt: false,
+  vibrate: true,
+};
+
+function isTentSettings(v: unknown): v is TentSettings {
+  return (
+    isObject(v) &&
+    typeof v.durationMinutes === 'number' &&
+    ['off', 'low', 'medium'].includes(v.frequency as string) &&
+    typeof v.pauseOnPrompt === 'boolean' &&
+    typeof v.vibrate === 'boolean'
+  );
+}
+
+export const loadTentSettings = () => read(KEYS.tentSettings, DEFAULT_TENT_SETTINGS, isTentSettings);
+export const saveTentSettings = (settings: TentSettings) => write(KEYS.tentSettings, settings);

@@ -128,7 +128,97 @@ export function Notice({ children }: { children: ReactNode }) {
   );
 }
 
+export type Choice<V extends string> = { value: V; label: string; detail?: string };
+
+/** A list of large radio options. The choice is shown by a tick and bold text, not colour alone. */
+export function Choices<V extends string>({
+  label,
+  options,
+  value,
+  onChange,
+  allowNone,
+}: {
+  label: string;
+  options: Choice<V>[];
+  value: V | null;
+  onChange: (v: V | null) => void;
+  /** Tapping the selected option again clears it. */
+  allowNone?: boolean;
+}) {
+  const c = useColors();
+  return (
+    <View style={{ gap: space.sm }} accessibilityRole="radiogroup" accessibilityLabel={label}>
+      <T variant="heading">{label}</T>
+      {options.map((o) => {
+        const selected = value === o.value;
+        return (
+          <Pressable
+            key={o.value}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: selected }}
+            accessibilityLabel={o.detail ? `${o.label}. ${o.detail}` : o.label}
+            onPress={() => onChange(selected && allowNone ? null : o.value)}
+            style={[
+              styles.option,
+              { borderColor: selected ? c.accent : c.border, backgroundColor: c.surface, borderWidth: selected ? 3 : 1 },
+            ]}
+          >
+            <Text style={[type.body, { color: c.text, width: 28 }]}>{selected ? '✓' : ''}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[type.body, { color: c.text, fontWeight: selected ? '700' : '400' }]}>{o.label}</Text>
+              {o.detail ? <Text style={[type.small, { color: c.textMuted }]}>{o.detail}</Text> : null}
+            </View>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+/** An on/off setting with its state written out, so it reads without colour. */
+export function Toggle({
+  label,
+  detail,
+  value,
+  onChange,
+}: {
+  label: string;
+  detail?: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  const c = useColors();
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value }}
+      accessibilityLabel={label}
+      accessibilityHint={detail}
+      onPress={() => onChange(!value)}
+      style={[styles.option, { borderColor: c.border, backgroundColor: c.surface, borderWidth: 1, gap: space.md }]}
+    >
+      <View style={{ flex: 1, paddingVertical: space.sm }}>
+        <Text style={[type.body, { color: c.text, fontWeight: '700' }]}>{label}</Text>
+        {detail ? <Text style={[type.small, { color: c.textMuted }]}>{detail}</Text> : null}
+      </View>
+      <View
+        style={[styles.toggleState, { backgroundColor: value ? c.accent : c.background, borderColor: value ? c.accent : c.text }]}
+      >
+        <Text style={[type.small, { color: value ? c.onAccent : c.text, fontWeight: '700' }]}>{value ? 'On' : 'Off'}</Text>
+      </View>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
+  option: {
+    minHeight: KITCHEN_TAP_SIZE,
+    borderRadius: 12,
+    paddingHorizontal: space.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  toggleState: { borderWidth: 2, borderRadius: 999, paddingHorizontal: space.md, paddingVertical: space.xs, minWidth: 64, alignItems: 'center' },
   screenContent: { padding: space.md, gap: space.lg, paddingBottom: space.xl },
   button: {
     minHeight: KITCHEN_TAP_SIZE,

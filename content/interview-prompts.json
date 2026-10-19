@@ -1,0 +1,23 @@
+{
+  "_note": "Placeholder interview practice prompts: general questions for practising talking about your baking while you work. They are not real questions from any competition. Replace freely; the app validates this file on load.",
+  "prompts": [
+    { "id": "what-are-you-making", "text": "Talk us through what you're making today." },
+    { "id": "who-is-it-for", "text": "If you could hand this bake to anyone, who would it be, and why?" },
+    { "id": "first-bake", "text": "What's the first thing you ever baked, and how did it go?" },
+    { "id": "who-taught-you", "text": "Who got you into baking?" },
+    { "id": "flavour-choice", "text": "Why these flavours? Where did the idea come from?" },
+    { "id": "worried-about", "text": "What's the bit you're most nervous about right now?" },
+    { "id": "gone-wrong", "text": "Has anything gone wrong yet? What's the plan?" },
+    { "id": "three-words", "text": "Describe this bake in three words." },
+    { "id": "proudest-bake", "text": "What's the bake you're proudest of, ever?" },
+    { "id": "disaster", "text": "Tell us about a baking disaster you've had. What did you learn?" },
+    { "id": "how-it-should-look", "text": "When it's finished, what should it look like?" },
+    { "id": "another-half-hour", "text": "What would you do differently with another half an hour?" },
+    { "id": "outside-baking", "text": "What do you do when you're not baking?" },
+    { "id": "kitchen", "text": "What's your kitchen like at home? Any quirks we should know about?" },
+    { "id": "timing-check", "text": "Where are you against the clock? Ahead, behind, or bang on?" },
+    { "id": "favourite-technique", "text": "What's the technique you love doing most, and why?" },
+    { "id": "family-recipe", "text": "Is there a family recipe that means a lot to you?" },
+    { "id": "next-step", "text": "What's your very next step, and what are you watching for?" }
+  ]
+}
