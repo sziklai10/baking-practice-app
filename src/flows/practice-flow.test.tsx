@@ -12,6 +12,10 @@ import { KEYS } from '../storage/storage';
 const Notifications = jest.requireMock('expo-notifications');
 const MIN = 60_000;
 
+// Loading the whole app is slow on a cold cache, and these walk through long simulated sessions.
+jest.setTimeout(60_000);
+
+
 /** Lets pending saves and renders finish, moving the clock on by `ms`. */
 const wait = (ms = 300) =>
   act(async () => {
@@ -37,6 +41,8 @@ async function startShortbread() {
 
 beforeEach(async () => {
   await AsyncStorage.clear();
+  // Past the first-run welcome; plan-flow.test.tsx covers that.
+  await AsyncStorage.setItem(KEYS.profile, JSON.stringify({ schemaVersion: 1, data: { status: 'skipped' } }));
   jest.clearAllMocks();
 });
 

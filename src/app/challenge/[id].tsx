@@ -4,6 +4,7 @@ import { LEVEL_LABELS, equipmentLabels, findChallenge } from '../../content/chal
 import { durationLabel } from '../../domain/format';
 import { useAppData } from '../../state/AppData';
 import { Bullets, Button, Notice, Screen, Section, T, Tag } from '../../ui/components';
+import { sessionRoute } from '../../ui/session';
 import { space } from '../../ui/theme';
 
 export default function ChallengeScreen() {
@@ -56,14 +57,22 @@ export default function ChallengeScreen() {
       {active ? (
         <View style={{ gap: space.sm }}>
           <Notice>You've already got a session on the go. Finish that one first.</Notice>
-          <Button label="Go to my session" variant="secondary" onPress={() => router.push(active.endedAt === null ? '/session/practice' : '/session/reflect')} />
+          <Button label="Go to my session" variant="secondary" onPress={() => router.push(sessionRoute(active))} />
         </View>
       ) : (
-        <Button
-          label={`Start the ${durationLabel(challenge.durationMinutes)} timer`}
-          hint="Starts the countdown straight away"
-          onPress={begin}
-        />
+        <View style={{ gap: space.sm }}>
+          <Button
+            label={`Start the ${durationLabel(challenge.durationMinutes)} timer`}
+            hint="Starts the countdown straight away"
+            onPress={begin}
+          />
+          <Button
+            label="Do it as a Tent Simulation"
+            variant="secondary"
+            hint="Adds surprise interview questions. You'll set it up first."
+            onPress={() => router.push({ pathname: '/session/tent-setup', params: { challengeId: challenge.id } })}
+          />
+        </View>
       )}
     </Screen>
   );

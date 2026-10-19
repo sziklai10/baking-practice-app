@@ -1,20 +1,22 @@
 import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { findChallenge } from '../../content/challenges';
+import { Alert, StyleSheet, TextInput, View } from 'react-native';
+import { findChallenge, sessionTitle } from '../../content/challenges';
+import { promptText } from '../../content/prompts';
 import { spokenDuration } from '../../domain/format';
 import type { Feeling } from '../../domain/session';
-import { FEELING_LABELS } from '../../domain/session';
+import { FEELING_LABELS, PROMPT_OUTCOME_LABELS } from '../../domain/session';
 import { activeElapsedMs, remainingMs } from '../../domain/timer';
 import { useAppData } from '../../state/AppData';
-import { Bullets, Button, Screen, Section, T } from '../../ui/components';
-import { KITCHEN_TAP_SIZE, space, type, useColors } from '../../ui/theme';
+import { Bullets, Button, Choices, Screen, Section, T } from '../../ui/components';
+import { radius, space, type, useColors } from '../../ui/theme';
 
 export default function ReflectScreen() {
   const { active, saveReflection, discard } = useAppData();
   const [wentWell, setWentWell] = useState('');
   const [improveNext, setImproveNext] = useState('');
   const [feeling, setFeeling] = useState<Feeling | null>(null);
+  const [promptNotes, setPromptNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
   if (!active || active.endedAt === null) return <Redirect href="/" />;
@@ -25,7 +27,7 @@ export default function ReflectScreen() {
 
   const save = async () => {
     setSaving(true);
-    await saveReflection({ wentWell, improveNext, feeling });
+    await saveReflection({ wentWell, improveNext, feeling, promptNotes });
     router.dismissTo('/');
   };
 
@@ -45,7 +47,7 @@ export default function ReflectScreen() {
   return (
     <Screen>
       <View style={{ gap: space.xs }}>
-        <T variant="heading">{challenge?.title ?? 'Practice session'}</T>
+        <T variant="heading">{sessionTitle(active.kind, active.challengeId, active.timer.durationMs)}</T>
         <T muted>
           {left > 0
             ? `You stopped with ${spokenDuration(left)} to spare, after ${spokenDuration(baked)}.`
@@ -56,13 +58,24 @@ export default function ReflectScreen() {
       <Field label="What went well?" value={wentWell} onChangeText={setWentWell} />
       <Field label="What would you change next time?" value={improveNext} onChangeText={setImproveNext} />
 
+      {active.tent && active.tent.frequency !== 'off' ? <PromptRecap log={active.tent.log} /> : null}
+      {active.tent && active.tent.log.some((l) => l.outcome === 'answered' || l.outcome === 'faded' || l.outcome === 'skipped') ? (
+        <Field label="Anything to say better next time?" value={promptNotes} onChangeText={setPromptNotes} />
+      ) : null}
+
       {challenge?.reflectionHints.length ? (
         <Section title="Worth thinking about" tag="General advice">
           <Bullets items={challenge.reflectionHints} />
         </Section>
       ) : null}
 
-      <FeelingPicker value={feeling} onChange={setFeeling} />
+      <Choices
+        label="How did it feel?"
+        options={(Object.keys(FEELING_LABELS) as Feeling[]).map((f) => ({ value: f, label: FEELING_LABELS[f] }))}
+        value={feeling}
+        onChange={setFeeling}
+        allowNone
+      />
 
       <T muted>Only you see this. It's saved on this phone and nowhere else.</T>
 
@@ -71,6 +84,28 @@ export default function ReflectScreen() {
         <Button label="Don't save this one" variant="secondary" onPress={confirmDiscard} disabled={saving} />
       </View>
     </Screen>
+  );
+}
+
+function PromptRecap({ log }: { log: { promptId: string; outcome: keyof typeof PROMPT_OUTCOME_LABELS }[] }) {
+  const seen = log.filter((l) => l.outcome !== 'missed' && l.outcome !== 'muted');
+  const heldBack = log.length - seen.length;
+  return (
+    <Section title="Questions you got">
+      {seen.length === 0 ? <T>No questions came up this time.</T> : null}
+      {seen.map((l) => (
+        <View key={l.promptId} style={{ gap: space.xs }}>
+          <T>{promptText(l.promptId)}</T>
+          <T muted>{PROMPT_OUTCOME_LABELS[l.outcome]}</T>
+        </View>
+      ))}
+      {heldBack > 0 ? (
+        <T muted>
+          {heldBack} more {heldBack === 1 ? 'was' : 'were'} held back while muted or while the app was closed.
+        </T>
+      ) : null}
+      <T muted>Letting a question pass is fine. The point is practice, not a score.</T>
+    </Section>
   );
 }
 
@@ -95,45 +130,6 @@ function Field({ label, value, onChangeText }: { label: string; value: string; o
   );
 }
 
-function FeelingPicker({ value, onChange }: { value: Feeling | null; onChange: (f: Feeling | null) => void }) {
-  const c = useColors();
-  const options = Object.keys(FEELING_LABELS) as Feeling[];
-  return (
-    <View style={{ gap: space.sm }} accessibilityRole="radiogroup" accessibilityLabel="How did it feel? Optional">
-      <T variant="heading">How did it feel?</T>
-      {options.map((f) => {
-        const selected = value === f;
-        return (
-          <Pressable
-            key={f}
-            accessibilityRole="radio"
-            accessibilityState={{ checked: selected }}
-            accessibilityLabel={FEELING_LABELS[f]}
-            onPress={() => onChange(selected ? null : f)}
-            style={[
-              styles.option,
-              { borderColor: selected ? c.accent : c.border, backgroundColor: c.surface, borderWidth: selected ? 3 : 1 },
-            ]}
-          >
-            {/* The tick shows the choice without relying on colour. */}
-            <Text style={[type.body, { color: c.text, width: 28 }]}>{selected ? '✓' : ''}</Text>
-            <Text style={[type.body, { color: c.text, flex: 1, fontWeight: selected ? '700' : '400' }]}>
-              {FEELING_LABELS[f]}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  input: { minHeight: 96, borderWidth: 1, borderRadius: 12, padding: space.md, textAlignVertical: 'top' },
-  option: {
-    minHeight: KITCHEN_TAP_SIZE,
-    borderRadius: 12,
-    paddingHorizontal: space.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  input: { minHeight: 96, borderWidth: 1, borderRadius: radius.md, padding: space.md, textAlignVertical: 'top' },
 });

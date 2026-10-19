@@ -12,6 +12,8 @@ Don't edit the PRD without asking the product owner; suggest changes instead.
 ## Agreed conventions (architecture approved 18 Oct 2026)
 
 - Expo + TypeScript (strict) + Expo Router. Routes in `src/app/`, kept thin.
+  Nothing but routes goes in `src/app/`: every file there is bundled as a screen,
+  so tests live next to their code or in `src/flows/` (full-app flow tests).
 - `src/domain/` is pure TypeScript with no React: timer, scheduling, formatting.
   Anything with rules or maths goes here and gets unit tests.
 - Timers are derived from wall-clock timestamps (`src/domain/timer.ts`), never
@@ -23,7 +25,11 @@ Don't edit the PRD without asking the product owner; suggest changes instead.
   and is validated on load. No content in code.
 - App name and IDs live only in `config/identity.json`. Bundle ID stays neutral.
   Never publish to a store.
+- Stay on the Expo SDK that the App Store / Play Store Expo Go app supports (SDK 57
+  as of 19 Oct 2026; SDK 58 wasn't in Expo Go yet). Upgrade only once it is.
 - Minimal dependencies: add one only with a written reason, using `npx expo install`.
+  `react-native-reanimated` and `react-native-worklets` are pinned only because
+  Expo Router needs them as peers; pinning keeps them matched to Expo Go.
 - Kitchen use: session controls at least 64pt (`KITCHEN_TAP_SIZE`), large text,
   respect system font size, nothing conveyed by colour alone, nothing that relies
   on sound. Prompts must never demand interaction; safety comes first in copy.

@@ -1,0 +1,14 @@
+{
+  "_note": "Skills a baker can choose to focus on during onboarding. Challenges in challenges.json tag themselves with these ids. 'talking' has no challenges: it points people at the Tent Simulation.",
+  "skills": {
+    "timing": "Timing and planning",
+    "pastry": "Pastry",
+    "bread": "Bread",
+    "sponge": "Sponges and cakes",
+    "biscuits": "Biscuits",
+    "decoration": "Decorating",
+    "presentation": "Presentation",
+    "consistency": "Making things match",
+    "talking": "Talking about my bakes"
+  }
+}

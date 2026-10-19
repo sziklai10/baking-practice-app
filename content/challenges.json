@@ -51,7 +51,7 @@
       "summary": "A whisked sponge, a filling and a clean roll.",
       "level": "intermediate",
       "durationMinutes": 75,
-      "skills": ["sponge", "technique", "finishing"],
+      "skills": ["sponge", "presentation"],
       "equipment": ["oven", "swiss-roll-tin", "electric-whisk", "scales"],
       "goal": "An even spiral, no cracks on the outside, cleanly trimmed ends.",
       "prepNotes": [
@@ -73,7 +73,7 @@
       "summary": "Shortcrust, blind baking, crème pâtissière and a neat finish.",
       "level": "intermediate",
       "durationMinutes": 120,
-      "skills": ["pastry", "timing", "finishing", "presentation"],
+      "skills": ["pastry", "timing", "presentation"],
       "equipment": ["oven", "tart-tin", "baking-beans", "scales"],
       "goal": "A crisp, evenly baked case, a set filling and fruit arranged with intent.",
       "prepNotes": [
@@ -96,7 +96,7 @@
       "summary": "Choux pastry, piping and a glossy finish under time pressure.",
       "level": "confident",
       "durationMinutes": 120,
-      "skills": ["pastry", "technique", "decoration", "timing"],
+      "skills": ["pastry", "decoration", "timing"],
       "equipment": ["oven", "baking-sheet", "piping-bag", "scales"],
       "goal": "Twelve éclairs of matching length, crisp and hollow, filled and glazed.",
       "prepNotes": [

@@ -1,6 +1,6 @@
 {
-  "_note": "The one place to rename the app. 'Proof' is a working name and unlikely to be the final store name (see the PRD decision log). Bundle and package IDs are deliberately neutral and unrelated to it.",
-  "displayName": "Proof",
+  "_note": "The one place to rename the app. 'Steady On' is the working name from the 19 Oct 2026 brand concept, not yet a final store name. Bundle and package IDs are deliberately neutral and unrelated to it.",
+  "displayName": "Steady On",
   "slug": "baking-practice-app",
   "scheme": "bakingpractice",
   "iosBundleIdentifier": "com.bakingpractice.mvp",

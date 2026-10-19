@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Linking } from 'react-native';
 import identity from '../../../config/identity.json';
@@ -9,7 +9,7 @@ import { Button, Notice, Screen, Section, T } from '../../ui/components';
 type Permission = 'granted' | 'denied' | 'undetermined' | 'unknown';
 
 export default function SettingsScreen() {
-  const { sessions, active, deleteAllData } = useAppData();
+  const { sessions, active, deleteAllData, profile } = useAppData();
   const [permission, setPermission] = useState<Permission>('unknown');
   const [deleted, setDeleted] = useState(false);
 
@@ -63,6 +63,19 @@ export default function SettingsScreen() {
             />
           </>
         ) : null}
+      </Section>
+
+      <Section title="Your plan">
+        <T>
+          {profile?.status === 'set'
+            ? 'Suggestions are based on your answers to the plan questions.'
+            : "You haven't answered the plan questions yet."}
+        </T>
+        <Button
+          label={profile?.status === 'set' ? 'Change my answers' : 'Answer the questions'}
+          variant="secondary"
+          onPress={() => router.push('/onboarding')}
+        />
       </Section>
 
       <Section title="Your data">
