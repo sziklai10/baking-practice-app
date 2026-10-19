@@ -3,6 +3,7 @@
 // fails loudly instead of showing a half-broken screen.
 import challengesFile from '../../content/challenges.json';
 import equipmentFile from '../../content/equipment.json';
+import { durationLabel } from '../domain/format';
 
 export type Level = 'beginner' | 'intermediate' | 'confident';
 
@@ -85,6 +86,13 @@ export const challenges: Challenge[] = validateChallenges(
   new Set(Object.keys(equipmentLabels)),
 );
 
-export function findChallenge(id: string | undefined): Challenge | undefined {
-  return challenges.find((c) => c.id === id);
+export function findChallenge(id: string | null | undefined): Challenge | undefined {
+  return id ? challenges.find((c) => c.id === id) : undefined;
+}
+
+/** How a session is named on screen and in the progress record. */
+export function sessionTitle(kind: 'practice' | 'tent', challengeId: string | null, durationMs: number): string {
+  const challenge = findChallenge(challengeId)?.title;
+  if (kind === 'practice') return challenge ?? 'Practice session';
+  return challenge ? `Tent Simulation: ${challenge}` : `Tent Simulation, ${durationLabel(Math.round(durationMs / 60_000))}`;
 }

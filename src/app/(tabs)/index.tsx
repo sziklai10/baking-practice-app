@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
-import { LEVEL_LABELS, challenges, findChallenge } from '../../content/challenges';
+import { LEVEL_LABELS, challenges, sessionTitle } from '../../content/challenges';
 import { durationLabel, formatClock } from '../../domain/format';
 import { remainingMs, timerStatus } from '../../domain/timer';
 import { useAppData } from '../../state/AppData';
 import { Button, Card, Notice, Screen, T } from '../../ui/components';
+import { sessionRoute } from '../../ui/session';
 import { space } from '../../ui/theme';
 import { useNow } from '../../ui/useNow';
 
@@ -27,6 +28,14 @@ export default function PractiseScreen() {
           <T variant="heading">Last time</T>
           <T>{last.title}</T>
           {last.improveNext ? <T muted>Next time: {last.improveNext}</T> : null}
+        </Card>
+      ) : null}
+
+      {!active ? (
+        <Card>
+          <T variant="heading">Tent Simulation</T>
+          <T>A timed bake with surprise interview questions, so you can practise talking while you work.</T>
+          <Button label="Set one up" onPress={() => router.push('/session/tent-setup')} />
         </Card>
       ) : null}
 
@@ -56,7 +65,7 @@ function ActiveSessionCard() {
   const { active } = useAppData();
   const now = useNow(!!active && active.endedAt === null && active.timer.pausedAt === null, 1000);
   if (!active) return null;
-  const title = findChallenge(active.challengeId)?.title ?? 'Your session';
+  const title = sessionTitle(active.kind, active.challengeId, active.timer.durationMs);
   const status = timerStatus(active.timer, now);
   const waitingForReflection = active.endedAt !== null;
   const detail = waitingForReflection
@@ -73,7 +82,7 @@ function ActiveSessionCard() {
       <T muted>{detail}</T>
       <Button
         label={waitingForReflection ? 'Reflect now' : 'Back to the timer'}
-        onPress={() => router.push(waitingForReflection ? '/session/reflect' : '/session/practice')}
+        onPress={() => router.push(sessionRoute(active))}
       />
     </Card>
   );

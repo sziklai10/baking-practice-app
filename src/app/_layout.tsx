@@ -27,6 +27,11 @@ function Navigator() {
         name="session/practice"
         options={{ headerShown: false, gestureEnabled: false, presentation: 'fullScreenModal' }}
       />
+      <Stack.Screen name="session/tent-setup" options={{ title: '' }} />
+      <Stack.Screen
+        name="session/tent"
+        options={{ headerShown: false, gestureEnabled: false, presentation: 'fullScreenModal' }}
+      />
       <Stack.Screen
         name="session/reflect"
         options={{

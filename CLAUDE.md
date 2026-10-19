@@ -12,6 +12,8 @@ Don't edit the PRD without asking the product owner; suggest changes instead.
 ## Agreed conventions (architecture approved 18 Oct 2026)
 
 - Expo + TypeScript (strict) + Expo Router. Routes in `src/app/`, kept thin.
+  Nothing but routes goes in `src/app/`: every file there is bundled as a screen,
+  so tests live next to their code or in `src/flows/` (full-app flow tests).
 - `src/domain/` is pure TypeScript with no React: timer, scheduling, formatting.
   Anything with rules or maths goes here and gets unit tests.
 - Timers are derived from wall-clock timestamps (`src/domain/timer.ts`), never

@@ -2,7 +2,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { ActiveSession, SessionRecord } from '../domain/session';
 import { createTimer } from '../domain/timer';
 import {
+  DEFAULT_TENT_SETTINGS,
   KEYS,
+  loadTentSettings,
+  saveTentSettings,
   deleteAllStoredData,
   loadActiveSession,
   loadSessions,
@@ -68,6 +71,18 @@ describe('storage', () => {
   it('rejects data with the wrong shape', async () => {
     await AsyncStorage.setItem(KEYS.sessions, JSON.stringify({ schemaVersion: 1, data: [{ id: 3 }] }));
     expect((await loadSessions()).problem).toBe(true);
+  });
+
+  it('round-trips Tent Simulation settings and falls back to defaults', async () => {
+    expect(await loadTentSettings()).toEqual({ value: DEFAULT_TENT_SETTINGS, problem: false });
+    const custom = { durationMinutes: 45, frequency: 'medium' as const, pauseOnPrompt: true, vibrate: false };
+    await saveTentSettings(custom);
+    expect((await loadTentSettings()).value).toEqual(custom);
+  });
+
+  it('accepts a session with no challenge, as a Tent Simulation can have', async () => {
+    await saveSessions([{ ...record, kind: 'tent', challengeId: null }]);
+    expect((await loadSessions()).problem).toBe(false);
   });
 
   it('deletes all of its own data and leaves other keys alone', async () => {
