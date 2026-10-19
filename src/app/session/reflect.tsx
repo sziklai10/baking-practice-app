@@ -9,7 +9,7 @@ import { FEELING_LABELS, PROMPT_OUTCOME_LABELS } from '../../domain/session';
 import { activeElapsedMs, remainingMs } from '../../domain/timer';
 import { useAppData } from '../../state/AppData';
 import { Bullets, Button, Choices, Screen, Section, T } from '../../ui/components';
-import { space, type, useColors } from '../../ui/theme';
+import { radius, space, type, useColors } from '../../ui/theme';
 
 export default function ReflectScreen() {
   const { active, saveReflection, discard } = useAppData();
@@ -131,5 +131,5 @@ function Field({ label, value, onChangeText }: { label: string; value: string; o
 }
 
 const styles = StyleSheet.create({
-  input: { minHeight: 96, borderWidth: 1, borderRadius: 12, padding: space.md, textAlignVertical: 'top' },
+  input: { minHeight: 96, borderWidth: 1, borderRadius: radius.md, padding: space.md, textAlignVertical: 'top' },
 });

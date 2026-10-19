@@ -109,5 +109,5 @@ export const sessionStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   timerBox: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: space.sm, minHeight: 120 },
-  timer: { fontSize: 96, fontWeight: '700', fontVariant: ['tabular-nums'], textAlign: 'center', alignSelf: 'stretch' },
+  timer: { fontSize: 96, fontWeight: '800', letterSpacing: -2, fontVariant: ['tabular-nums'], textAlign: 'center', alignSelf: 'stretch' },
 });

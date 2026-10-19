@@ -2,7 +2,17 @@ import type { ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { StyleProp, TextProps, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { KITCHEN_TAP_SIZE, space, type, useColors } from './theme';
+import { KITCHEN_TAP_SIZE, radius, space, type, useColors } from './theme';
+import type { Colors } from './theme';
+
+/** A soft drop shadow instead of hard borders. Borders stay for dark mode, where shadows barely show. */
+const lift = (c: Colors) => ({
+  shadowColor: c.shadow,
+  shadowOpacity: 0.08,
+  shadowRadius: 16,
+  shadowOffset: { width: 0, height: 6 },
+  elevation: 3,
+});
 
 export function Screen({ children, scroll = true }: { children: ReactNode; scroll?: boolean }) {
   const c = useColors();
@@ -45,7 +55,7 @@ export function Button({ label, onPress, variant = 'primary', hint, disabled, st
   const c = useColors();
   const palette = {
     primary: { bg: c.accent, fg: c.onAccent, border: c.accent },
-    secondary: { bg: c.surface, fg: c.text, border: c.text },
+    secondary: { bg: c.surface, fg: c.accent, border: c.accent },
     danger: { bg: c.danger, fg: c.onDanger, border: c.danger },
   }[variant];
   return (
@@ -70,7 +80,7 @@ export function Button({ label, onPress, variant = 'primary', hint, disabled, st
 
 export function Card({ children, onPress, label }: { children: ReactNode; onPress?: () => void; label?: string }) {
   const c = useColors();
-  const style = [styles.card, { backgroundColor: c.surface, borderColor: c.border }];
+  const style = [styles.card, lift(c), { backgroundColor: c.surface, borderColor: c.border }];
   if (!onPress) return <View style={style}>{children}</View>;
   return (
     <Pressable
@@ -100,8 +110,8 @@ export function Section({ title, tag, children }: { title: string; tag?: string;
 export function Tag({ label }: { label: string }) {
   const c = useColors();
   return (
-    <View style={[styles.tag, { borderColor: c.textMuted }]}>
-      <Text style={[type.small, { color: c.textMuted }]}>{label}</Text>
+    <View style={[styles.tag, { backgroundColor: c.accentSoft }]}>
+      <Text style={[type.small, { color: c.text, fontWeight: '600' }]}>{label}</Text>
     </View>
   );
 }
@@ -160,7 +170,7 @@ export function Choices<V extends string>({
             onPress={() => onChange(selected && allowNone ? null : o.value)}
             style={[
               styles.option,
-              { borderColor: selected ? c.accent : c.border, backgroundColor: c.surface, borderWidth: selected ? 3 : 1 },
+              { borderColor: selected ? c.accent : c.border, backgroundColor: selected ? c.accentSoft : c.surface, borderWidth: selected ? 3 : 1 },
             ]}
           >
             <Text style={[type.body, { color: c.text, width: 28 }]}>{selected ? '✓' : ''}</Text>
@@ -202,7 +212,7 @@ export function Checklist<V extends string>({
             onPress={() => onChange(checked ? values.filter((v) => v !== o.value) : [...values, o.value])}
             style={[
               styles.option,
-              { borderColor: checked ? c.accent : c.border, backgroundColor: c.surface, borderWidth: checked ? 3 : 1 },
+              { borderColor: checked ? c.accent : c.border, backgroundColor: checked ? c.accentSoft : c.surface, borderWidth: checked ? 3 : 1 },
             ]}
           >
             <Text style={[type.body, { color: c.text, width: 28 }]}>{checked ? '✓' : ''}</Text>
@@ -255,23 +265,23 @@ export function Toggle({
 const styles = StyleSheet.create({
   option: {
     minHeight: KITCHEN_TAP_SIZE,
-    borderRadius: 12,
+    borderRadius: radius.md,
     paddingHorizontal: space.md,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  toggleState: { borderWidth: 2, borderRadius: 999, paddingHorizontal: space.md, paddingVertical: space.xs, minWidth: 64, alignItems: 'center' },
-  screenContent: { padding: space.md, gap: space.lg, paddingBottom: space.xl },
+  toggleState: { borderWidth: 2, borderRadius: radius.pill, paddingHorizontal: space.md, paddingVertical: space.xs, minWidth: 64, alignItems: 'center' },
+  screenContent: { paddingHorizontal: space.lg - 4, paddingTop: space.md, gap: space.lg, paddingBottom: space.xl * 2 },
   button: {
     minHeight: KITCHEN_TAP_SIZE,
     paddingHorizontal: space.lg,
     paddingVertical: space.sm,
-    borderRadius: 14,
+    borderRadius: radius.pill,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  card: { borderWidth: 1, borderRadius: 14, padding: space.md, gap: space.sm },
-  tag: { borderWidth: 1, borderRadius: 999, paddingHorizontal: space.sm },
-  notice: { borderRadius: 12, padding: space.md },
+  card: { borderWidth: StyleSheet.hairlineWidth, borderRadius: radius.lg, padding: space.lg - 4, gap: space.sm },
+  tag: { borderRadius: radius.pill, paddingHorizontal: space.sm + 2, paddingVertical: 2 },
+  notice: { borderRadius: radius.md, padding: space.md },
 });

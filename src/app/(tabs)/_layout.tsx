@@ -27,7 +27,7 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: c.accent,
         tabBarInactiveTintColor: c.textMuted,
-        tabBarStyle: { backgroundColor: c.surface, borderTopColor: c.border, minHeight: 64 },
+        tabBarStyle: { backgroundColor: c.surface, borderTopColor: c.border, minHeight: 72, paddingTop: 6 },
         // Text-only tabs until there's a visual identity to draw icons from.
         tabBarIcon: () => null,
         tabBarIconStyle: { display: 'none' },

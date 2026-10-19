@@ -10,7 +10,7 @@ import { remainingMs, timerStatus } from '../../domain/timer';
 import { useAppData } from '../../state/AppData';
 import { Button, Notice, T } from '../../ui/components';
 import { STATUS_LABELS, TimerFace, sessionStyles, useSessionExit, useTimerCues } from '../../ui/session';
-import { space, useColors } from '../../ui/theme';
+import { radius, space, useColors } from '../../ui/theme';
 import { useNow } from '../../ui/useNow';
 
 export default function TentScreen() {
@@ -116,5 +116,5 @@ export default function TentScreen() {
 }
 
 const styles = StyleSheet.create({
-  prompt: { borderWidth: 3, borderRadius: 16, padding: space.md, gap: space.sm },
+  prompt: { borderWidth: 3, borderRadius: radius.lg, padding: space.md, gap: space.sm },
 });
