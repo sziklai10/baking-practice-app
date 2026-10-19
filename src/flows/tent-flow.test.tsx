@@ -9,6 +9,10 @@ import { KEYS } from '../storage/storage';
 
 const MIN = 60_000;
 
+// Loading the whole app is slow on a cold cache, and these walk through long simulated sessions.
+jest.setTimeout(60_000);
+
+
 const wait = (ms = 300) =>
   act(async () => {
     jest.advanceTimersByTime(ms);

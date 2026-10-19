@@ -12,6 +12,10 @@ import { KEYS } from '../storage/storage';
 const Notifications = jest.requireMock('expo-notifications');
 const MIN = 60_000;
 
+// Loading the whole app is slow on a cold cache, and these walk through long simulated sessions.
+jest.setTimeout(60_000);
+
+
 /** Lets pending saves and renders finish, moving the clock on by `ms`. */
 const wait = (ms = 300) =>
   act(async () => {
