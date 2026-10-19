@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import type { Challenge } from '../content/challenges';
 import { sessionTitle } from '../content/challenges';
 import { promptText, prompts } from '../content/prompts';
+import type { Profile } from '../domain/plan';
 import type { ActiveSession, Feeling, SessionRecord } from '../domain/session';
 import { newId, newSeed } from '../domain/session';
 import * as tent from '../domain/tent';
@@ -15,13 +16,15 @@ import {
   deleteAllStoredData,
   DEFAULT_TENT_SETTINGS,
   loadActiveSession,
+  loadProfile,
   loadSessions,
   loadTentSettings,
   saveActiveSession,
+  saveProfile,
   saveSessions,
   saveTentSettings,
 } from '../storage/storage';
-import type { TentSettings } from '../storage/storage';
+import type { ProfileState, TentSettings } from '../storage/storage';
 
 export type Reflection = { wentWell: string; improveNext: string; feeling: Feeling | null; promptNotes?: string };
 
@@ -35,6 +38,10 @@ type AppData = {
   active: ActiveSession | null;
   /** The Tent Simulation setup used last time. */
   tentSettings: TentSettings;
+  /** Onboarding answers; null until the baker has answered or skipped. */
+  profile: ProfileState | null;
+  saveProfile: (profile: Profile) => Promise<void>;
+  skipProfile: () => Promise<void>;
   startPractice: (challenge: Challenge) => Promise<void>;
   startTent: (setup: TentSetup) => Promise<void>;
   /** Brings prompts up to date; returns the prompt that has just appeared, if any. */
@@ -59,19 +66,21 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [active, setActive] = useState<ActiveSession | null>(null);
   const [tentSettings, setTentSettings] = useState<TentSettings>(DEFAULT_TENT_SETTINGS);
+  const [profile, setProfile] = useState<ProfileState | null>(null);
   const activeRef = useRef<ActiveSession | null>(null);
   const sessionsRef = useRef<SessionRecord[]>([]);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([loadSessions(), loadActiveSession(), loadTentSettings()]).then(([s, a, t]) => {
+    Promise.all([loadSessions(), loadActiveSession(), loadTentSettings(), loadProfile()]).then(([s, a, t, p]) => {
       if (cancelled) return;
       sessionsRef.current = s.value;
       activeRef.current = a.value;
       setSessions(s.value);
       setActive(a.value);
       setTentSettings(t.value);
-      setLoadProblem(s.problem || a.problem || t.problem);
+      setProfile(p.value);
+      setLoadProblem(s.problem || a.problem || t.problem || p.problem);
       setReady(true);
     });
     return () => {
@@ -255,6 +264,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     [commitActive],
   );
 
+  const commitProfile = useCallback(async (next: ProfileState) => {
+    setProfile(next);
+    await saveProfile(next);
+  }, []);
+
   const deleteAllData = useCallback(async () => {
     await cancelAllAlerts();
     await deleteAllStoredData();
@@ -263,6 +277,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setActive(null);
     setSessions([]);
     setTentSettings(DEFAULT_TENT_SETTINGS);
+    setProfile(null);
     setLoadProblem(false);
   }, []);
 
@@ -273,6 +288,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       sessions,
       active,
       tentSettings,
+      profile,
+      saveProfile: (p) => commitProfile({ status: 'set', profile: p, updatedAt: Date.now() }),
+      skipProfile: () => commitProfile({ status: 'skipped' }),
       startPractice,
       startTent,
       syncTent: () => applyTentStep(tent.advanceTent),
@@ -292,6 +310,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       sessions,
       active,
       tentSettings,
+      profile,
+      commitProfile,
       startPractice,
       startTent,
       applyTentStep,

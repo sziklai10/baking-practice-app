@@ -1,17 +1,23 @@
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
+import { useMemo } from 'react';
 import { View } from 'react-native';
-import { LEVEL_LABELS, challenges, sessionTitle } from '../../content/challenges';
+import { LEVEL_LABELS, challenges, equipmentLabels, findChallenge, sessionTitle, skillLabels } from '../../content/challenges';
 import { durationLabel, formatClock } from '../../domain/format';
+import type { Profile, Suggestion } from '../../domain/plan';
+import { suggest } from '../../domain/plan';
 import { remainingMs, timerStatus } from '../../domain/timer';
 import { useAppData } from '../../state/AppData';
-import { Button, Card, Notice, Screen, T } from '../../ui/components';
+import { Button, Card, Notice, Screen, Section, T } from '../../ui/components';
 import { sessionRoute } from '../../ui/session';
 import { space } from '../../ui/theme';
 import { useNow } from '../../ui/useNow';
 
 export default function PractiseScreen() {
-  const { active, sessions, loadProblem } = useAppData();
+  const { active, sessions, loadProblem, profile } = useAppData();
   const last = sessions[0];
+
+  // First visit: say hello and offer the plan questions before anything else.
+  if (profile === null) return <Redirect href="/welcome" />;
 
   return (
     <Screen>
@@ -22,6 +28,16 @@ export default function PractiseScreen() {
       ) : null}
 
       {active ? <ActiveSessionCard /> : null}
+
+      {!active && profile.status === 'set' ? <PlanCard profile={profile.profile} /> : null}
+
+      {!active && profile.status === 'skipped' ? (
+        <Card>
+          <T variant="heading">Not sure where to start?</T>
+          <T>Answer five quick questions and we'll suggest what to practise next.</T>
+          <Button label="Get a plan" variant="secondary" onPress={() => router.push('/onboarding')} />
+        </Card>
+      ) : null}
 
       {last && !active ? (
         <Card>
@@ -86,4 +102,60 @@ function ActiveSessionCard() {
       />
     </Card>
   );
+}
+
+const SKILL_LABEL = (id: string) => skillLabels[id] ?? id;
+
+function PlanCard({ profile }: { profile: Profile }) {
+  const { sessions } = useAppData();
+  const suggestions = useMemo(
+    () => suggest(profile, challenges, sessions, { skillLabel: SKILL_LABEL, durationLabel }),
+    [profile, sessions],
+  );
+  const [top] = suggestions;
+
+  if (!top) {
+    return (
+      <Card>
+        <T variant="heading">Your next practice</T>
+        <T>Nothing here fits your answers yet. Giving yourself a bit more time per practice opens up more bakes.</T>
+        <Button label="Change my answers" variant="secondary" onPress={() => router.push('/onboarding')} />
+      </Card>
+    );
+  }
+
+  const others = suggestions.filter((s) => s.challengeId !== top.challengeId).slice(0, 2);
+  return (
+    <Section title="Your next practice" tag="General advice">
+      <Card>
+        <T variant="heading">{suggestionTitle(top)}</T>
+        <T>{top.reason}</T>
+        {top.missing.length ? (
+          <T muted>You'd need: {top.missing.map((e) => equipmentLabels[e] ?? e).join(', ')}.</T>
+        ) : null}
+        <Button
+          label={top.kind === 'tent' ? 'Set it up' : 'Have a look'}
+          hint={suggestionTitle(top)}
+          onPress={() => openSuggestion(top)}
+        />
+      </Card>
+      {others.length ? <T muted>Or try</T> : null}
+      {others.map((s) => (
+        <Card key={s.challengeId} label={`${suggestionTitle(s)}. ${s.reason}`} onPress={() => openSuggestion(s)}>
+          <T variant="heading">{suggestionTitle(s)}</T>
+          <T muted>{s.reason}</T>
+        </Card>
+      ))}
+    </Section>
+  );
+}
+
+function suggestionTitle(s: Suggestion): string {
+  const title = findChallenge(s.challengeId)?.title ?? '';
+  return s.kind === 'tent' ? `Tent Simulation: ${title}` : title;
+}
+
+function openSuggestion(s: Suggestion) {
+  if (s.kind === 'tent') router.push({ pathname: '/session/tent-setup', params: { challengeId: s.challengeId } });
+  else router.push({ pathname: '/challenge/[id]', params: { id: s.challengeId } });
 }

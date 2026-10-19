@@ -175,6 +175,48 @@ export function Choices<V extends string>({
   );
 }
 
+/** Large tick boxes for choosing any number of options. Ticked ones show a tick and bold text, not colour alone. */
+export function Checklist<V extends string>({
+  label,
+  options,
+  values,
+  onChange,
+}: {
+  label: string;
+  options: Choice<V>[];
+  values: V[];
+  onChange: (v: V[]) => void;
+}) {
+  const c = useColors();
+  return (
+    <View style={{ gap: space.sm }} accessibilityLabel={label}>
+      <T variant="heading">{label}</T>
+      {options.map((o) => {
+        const checked = values.includes(o.value);
+        return (
+          <Pressable
+            key={o.value}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked }}
+            accessibilityLabel={o.detail ? `${o.label}. ${o.detail}` : o.label}
+            onPress={() => onChange(checked ? values.filter((v) => v !== o.value) : [...values, o.value])}
+            style={[
+              styles.option,
+              { borderColor: checked ? c.accent : c.border, backgroundColor: c.surface, borderWidth: checked ? 3 : 1 },
+            ]}
+          >
+            <Text style={[type.body, { color: c.text, width: 28 }]}>{checked ? '✓' : ''}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[type.body, { color: c.text, fontWeight: checked ? '700' : '400' }]}>{o.label}</Text>
+              {o.detail ? <Text style={[type.small, { color: c.textMuted }]}>{o.detail}</Text> : null}
+            </View>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 /** An on/off setting with its state written out, so it reads without colour. */
 export function Toggle({
   label,

@@ -3,6 +3,7 @@
 // fails loudly instead of showing a half-broken screen.
 import challengesFile from '../../content/challenges.json';
 import equipmentFile from '../../content/equipment.json';
+import skillsFile from '../../content/skills.json';
 import { durationLabel } from '../domain/format';
 
 export type Level = 'beginner' | 'intermediate' | 'confident';
@@ -29,7 +30,7 @@ export const LEVEL_LABELS: Record<Level, string> = {
   confident: 'Stretching yourself',
 };
 
-export function validateChallenges(raw: unknown, equipmentIds: Set<string>): Challenge[] {
+export function validateChallenges(raw: unknown, equipmentIds: Set<string>, skillIds?: Set<string>): Challenge[] {
   const list = (raw as { challenges?: unknown })?.challenges;
   if (!Array.isArray(list) || list.length === 0) {
     throw new Error('challenges.json: "challenges" must be a non-empty list');
@@ -61,6 +62,9 @@ export function validateChallenges(raw: unknown, equipmentIds: Set<string>): Cha
     if (typeof duration !== 'number' || !Number.isInteger(duration) || duration < 5 || duration > 600) {
       throw new Error(`${where}: "durationMinutes" must be a whole number from 5 to 600`);
     }
+    const skills = strList('skills');
+    const unknownSkills = skillIds ? skills.filter((k) => !skillIds.has(k)) : [];
+    if (unknownSkills.length) throw new Error(`${where}: unknown skills ${unknownSkills.join(', ')}`);
     const equipment = strList('equipment');
     const unknown = equipment.filter((e) => !equipmentIds.has(e));
     if (unknown.length) throw new Error(`${where}: unknown equipment ${unknown.join(', ')}`);
@@ -70,7 +74,7 @@ export function validateChallenges(raw: unknown, equipmentIds: Set<string>): Cha
       summary: str('summary'),
       level: c.level as Level,
       durationMinutes: duration,
-      skills: strList('skills'),
+      skills,
       equipment,
       goal: str('goal'),
       prepNotes: strList('prepNotes'),
@@ -81,9 +85,11 @@ export function validateChallenges(raw: unknown, equipmentIds: Set<string>): Cha
 }
 
 export const equipmentLabels: Record<string, string> = equipmentFile.equipment;
+export const skillLabels: Record<string, string> = skillsFile.skills;
 export const challenges: Challenge[] = validateChallenges(
   challengesFile,
   new Set(Object.keys(equipmentLabels)),
+  new Set(Object.keys(skillLabels)),
 );
 
 export function findChallenge(id: string | null | undefined): Challenge | undefined {

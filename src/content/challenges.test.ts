@@ -31,7 +31,8 @@ describe('challenge content', () => {
     ['fractional duration', { challenges: [{ ...valid, durationMinutes: 12.5 }] }],
     ['unknown equipment', { challenges: [{ ...valid, equipment: ['blowtorch'] }] }],
     ['duplicate id', { challenges: [valid, valid] }],
+    ['unknown skill', { challenges: [{ ...valid, skills: ['juggling'] }] }],
   ])('rejects %s', (_label, raw) => {
-    expect(() => validateChallenges(raw, equipment)).toThrow();
+    expect(() => validateChallenges(raw, equipment, new Set(['x']))).toThrow();
   });
 });

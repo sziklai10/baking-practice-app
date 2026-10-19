@@ -51,6 +51,8 @@ let vibrate: jest.SpyInstance;
 
 beforeEach(async () => {
   await AsyncStorage.clear();
+  // Past the first-run welcome; plan-flow.test.tsx covers that.
+  await AsyncStorage.setItem(KEYS.profile, JSON.stringify({ schemaVersion: 1, data: { status: 'skipped' } }));
   jest.clearAllMocks();
   vibrate = jest.spyOn(Vibration, 'vibrate').mockImplementation(() => {});
 });

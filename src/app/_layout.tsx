@@ -21,6 +21,8 @@ function Navigator() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="welcome" options={{ headerShown: false }} />
+      <Stack.Screen name="onboarding" options={{ title: 'Your plan' }} />
       <Stack.Screen name="challenge/[id]" options={{ title: '' }} />
       {/* Sessions can't be swiped away by a wet thumb; leaving is always an explicit choice. */}
       <Stack.Screen
